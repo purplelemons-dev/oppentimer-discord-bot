@@ -3,6 +3,7 @@ from timeit import default_timer as dt
 from os import getenv
 import random
 import time
+import asyncio
 
 time.tzset()
 
@@ -66,7 +67,7 @@ async def detect_words(message: discord.Message):
                 f"{message.author.mention}, you have been placed in solitary confinement for using the word ***{naughtyWord}***. Please remember to keep your dialogue clean. Thank you for your time. You will be released <t:{int(time.time() + timeInJail)}:R>"
             )
 
-            time.sleep(timeInJail)
+            await asyncio.sleep(timeInJail)
 
             await userCell.delete()
 
