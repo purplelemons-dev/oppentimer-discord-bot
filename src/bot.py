@@ -14,6 +14,13 @@ with open("wordlist.txt", "r") as f:
 
 class Client(discord.Client):
 
+    class channels:
+        solitary: discord.CategoryChannel = None
+        botLogs: discord.TextChannel = None
+
+    class roles:
+        jail: discord.Role = None
+
     last_message: discord.Message = None
     last_message_content: str = ""
     last_files: list[discord.File] = []
@@ -34,10 +41,12 @@ class Client(discord.Client):
         print("--------------------")
 
         self.GUILD = client.get_guild(1137187794398224394)
-        self.SOLITARY_CATEGORY = discord.utils.get(
-            self.GUILD.categories, name="solitary confinement"
+        self.channels.solitary = discord.utils.get(
+            self.GUILD.categories, name="solitary"
         )
-        self.JAIL_ROLE = discord.utils.get(self.GUILD.roles, name="jail time")
+        self.channels.botLogs = self.get_channel(1251302290875220038)
+
+        self.roles.jail = self.GUILD.get_role(1251026269835886613)
 
         print(f"Finished init in: {st - dt():.2f}s")
 
@@ -54,7 +63,7 @@ async def detect_words(message: discord.Message):
             # solitary confinement logic here
             await message.delete()
             await message.author.add_roles(
-                client.JAIL_ROLE, reason=f"Used the word {naughtyWord}"
+                client.roles.jail, reason=f"Used the word {naughtyWord}"
             )
 
             userCell = await client.SOLITARY_CATEGORY.create_text_channel(
@@ -71,7 +80,7 @@ async def detect_words(message: discord.Message):
 
             await userCell.delete()
 
-            await message.author.remove_roles(client.JAIL_ROLE, reason="Time served")
+            await message.author.remove_roles(client.roles.jail, reason="Time served")
 
             return
 
@@ -99,7 +108,7 @@ async def on_message(message: discord.Message):
     elif message.author.id == 756578226494767284:  # nate
         await message.reply("fuck you")
 
-    elif message.author.id == 529505244615278605: # abbie
+    elif message.author.id == 529505244615278605:  # abbie
         now = time.localtime()
         if now.tm_hour == 11:
             message.reply(f"# shut the fuck up, you chink. go back to washing dishes")
