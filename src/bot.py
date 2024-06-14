@@ -48,7 +48,10 @@ class Client(discord.Client):
 
         self.roles.jail = self.GUILD.get_role(1251026269835886613)
 
-        print(f"Finished init in: {st - dt():.2f}s")
+        finishTime = st - dt()
+        print(f"Finished init in: {finishTime:.2f}s")
+
+        await self.channels.botLogs.send(f"Bot booted in {finishTime:.2f}s")
 
     def run(self):
         super().run(getenv("TOKEN"))
@@ -66,7 +69,7 @@ async def detect_words(message: discord.Message):
                 client.roles.jail, reason=f"Used the word {naughtyWord}"
             )
 
-            userCell = await client.SOLITARY_CATEGORY.create_text_channel(
+            userCell = await client.channels.solitary.create_text_channel(
                 name=f"{message.author.name}-cell"
             )
 
@@ -74,6 +77,10 @@ async def detect_words(message: discord.Message):
 
             await userCell.send(
                 f"{message.author.mention}, you have been placed in solitary confinement for using the word ***{naughtyWord}***. Please remember to keep your dialogue clean. Thank you for your time. You will be released <t:{int(time.time() + timeInJail)}:R>"
+            )
+
+            await client.channels.botLogs.send(
+                f"{message.author.name} has been placed in solitary confinement for using the word ***{naughtyWord}*** and will be released <t:{int(time.time() + timeInJail)}:R>"
             )
 
             await asyncio.sleep(timeInJail)
