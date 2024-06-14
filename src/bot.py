@@ -5,6 +5,8 @@ from os import getenv
 
 class Client(discord.Client):
 
+    last_message: discord.Message = None
+
     def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
@@ -16,9 +18,10 @@ class Client(discord.Client):
 
     async def on_ready(self):
         print(f"Logged in as {self.user}")
+        st = dt()
         print("--------------------")
 
-        print(f"Finished init at: {dt()}")
+        print(f"Finished init in: {st - dt():.2f}s")
 
     def run(self):
         super().run(getenv("TOKEN"))
@@ -29,18 +32,41 @@ client = Client()
 GUILD = client.get_guild(1137187794398224394)
 
 
-@client.tree.command(name="ping", description="Pong!")
-async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message("Pong!", ephemeral=True)
+@client.tree.command(
+    name="snipe", description="reveal the last message in chat that was deleted"
+)
+async def snipe(interaction: discord.Interaction):
+    contents = client.last_message.clean_content
+    attachments = client.last_message.attachments
+    await interaction.response.send_message(
+        content=f"```SENT: {client.last_message.created_at.strftime('%Y-%m-%d %H:%M:%S')}\nBY: {client.last_message.author}\n\nCONTENTS:\n{contents}```",
+        files=[await a.to_file() for a in attachments],
+    )
 
 
 @client.event
 async def on_message(message: discord.Message):
-    if (message.author == client.user) or (message.author.bot) or (message.interaction == "application_command"):
+    if (
+        (message.author == client.user)
+        or (message.author.bot)
+        or (message.interaction == "application_command")
+    ):
         return
 
-    if message.author.id == 756578226494767284:  # nate
+    elif message.author.id == 756578226494767284:  # nate
         await message.reply("fuck you")
+
+
+@client.event
+async def on_message_delete(message: discord.Message):
+    if (
+        (message.author == client.user)
+        or (message.author.bot)
+        or (message.interaction == "application_command")
+    ):
+        return
+
+    client.last_message = message
 
 
 client.run()
