@@ -113,15 +113,15 @@ async def on_message(message: discord.Message):
 
 
 @client.event
-async def on_message_edit(message: discord.Message):
+async def on_message_edit(before: discord.Message, after: discord.Message):
     if (
-        (message.author == client.user)
-        or (message.author.bot)
-        or (message.interaction == "application_command")
+        (after.author == client.user)
+        or (after.author.bot)
+        or (after.interaction == "application_command")
     ):
         return
 
-    await detect_words(message)
+    await detect_words(after)
 
 
 @client.event
