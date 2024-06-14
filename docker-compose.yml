@@ -8,3 +8,4 @@ services:
     volumes:
       - ./data:/data
     tty: true
+    restart: unless-stopped
