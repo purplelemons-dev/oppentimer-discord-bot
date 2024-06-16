@@ -32,14 +32,15 @@ class Client(discord.Client):
     last_files: list[discord.File] = []
     last_files_deleted: bool = False
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         intents = discord.Intents.default()
         intents.message_content = True
-        super().__init__(intents=intents)
-        self.tree = discord.app_commands.CommandTree(self)
+        super().__init__(intents=intents, *args, **kwargs)
+        self.tree = discord.app_commans.CommandTree(self)
 
     async def setup_hook(self):
         await self.tree.sync()
+        await super().setup_hook()
 
     async def on_ready(self):
         print(f"Logged in as {self.user}")
@@ -67,7 +68,7 @@ class Client(discord.Client):
         super().run(getenv("TOKEN"))
 
 
-client = Client()
+client = Client(max_messages=10000)
 
 
 async def detect_words(message: discord.Message):
@@ -99,7 +100,9 @@ async def detect_words(message: discord.Message):
 
             await message.author.remove_roles(client.roles.jail, reason="Time served")
 
-            return
+            return True
+
+    return False
 
 
 @client.tree.command(
@@ -137,7 +140,8 @@ async def on_message(message: discord.Message):
         client.last_files_deleted = False
 
     # Detect words
-    await detect_words(message)
+    if not await detect_words(message):
+        userinfo[message.author.id]["messageCount"] += 1
 
 
 @client.event
