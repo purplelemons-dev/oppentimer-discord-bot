@@ -36,7 +36,7 @@ class Client(discord.Client):
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(intents=intents, *args, **kwargs)
-        self.tree = discord.app_commans.CommandTree(self)
+        self.tree = discord.app_commands.CommandTree(self)
 
     async def setup_hook(self):
         await self.tree.sync()
@@ -63,6 +63,12 @@ class Client(discord.Client):
         print(f"Finished init in: {finishTime:.2f}s")
 
         await self.channels.botLogs.send(f"Bot booted in {finishTime:.2f}s")
+
+        # main loop
+        while True:
+            with open("/data/userinfo.json", "w") as f:
+                json.dump(userinfo, f, default=lambda x: x.__dict__, indent=4)
+            await asyncio.sleep(1)
 
     def run(self):
         super().run(getenv("TOKEN"))
