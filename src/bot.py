@@ -5,7 +5,7 @@ import random
 import time
 import asyncio
 import json
-from userinfo import UserInfo
+from data_classes import *
 
 time.tzset()
 
