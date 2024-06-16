@@ -42,13 +42,13 @@ class Client(discord.Client):
 
         self.GUILD = client.get_guild(1137187794398224394)
         self.channels.solitary = discord.utils.get(
-            self.GUILD.categories, name="solitary"
+            self.GUILD.categories, name="solitary confinement"
         )
         self.channels.botLogs = self.get_channel(1251302290875220038)
 
         self.roles.jail = self.GUILD.get_role(1251026269835886613)
 
-        finishTime = st - dt()
+        finishTime = dt() - st
         print(f"Finished init in: {finishTime:.2f}s")
 
         await self.channels.botLogs.send(f"Bot booted in {finishTime:.2f}s")
@@ -118,7 +118,7 @@ async def on_message(message: discord.Message):
     elif message.author.id == 529505244615278605:  # abbie
         now = time.localtime()
         if now.tm_hour == 11:
-            message.reply(f"# shut the fuck up, you chink. go back to washing dishes")
+            await message.reply(f"# shut the fuck up, you chink. go back to washing dishes")
 
     if message.attachments:
         client.last_files = [await i.to_file() for i in message.attachments]
