@@ -36,7 +36,7 @@ class Client(discord.Client):
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(intents=intents, *args, **kwargs)
-        self.tree = discord.app_commans.CommandTree(self)
+        self.tree = discord.app_commands.CommandTree(self)
 
     async def setup_hook(self):
         await self.tree.sync()
