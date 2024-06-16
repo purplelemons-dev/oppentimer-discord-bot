@@ -4,12 +4,18 @@ from os import getenv
 import random
 import time
 import asyncio
+import json
+from userinfo import UserInfo
 
 time.tzset()
 
 # TODO: let this be dynamically generated and edited by the webiste
 with open("wordlist.txt", "r") as f:
     wordlist = f.read().splitlines()
+
+
+with open("/data/userinfo.json", "r") as f:
+    userinfo: dict[int, UserInfo] = json.load(f)
 
 
 class Client(discord.Client):
@@ -47,6 +53,10 @@ class Client(discord.Client):
         self.channels.botLogs = self.get_channel(1251302290875220038)
 
         self.roles.jail = self.GUILD.get_role(1251026269835886613)
+
+        for user in self.GUILD.members:
+            if user.id not in userinfo:
+                userinfo[user.id] = {"messageCount": 0}
 
         finishTime = dt() - st
         print(f"Finished init in: {finishTime:.2f}s")
