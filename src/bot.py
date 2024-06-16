@@ -128,7 +128,9 @@ async def on_message(message: discord.Message):
     elif message.author.id == 529505244615278605:  # abbie
         now = time.localtime()
         if now.tm_hour == 11:
-            await message.reply(f"# shut the fuck up, you chink. go back to washing dishes")
+            await message.reply(
+                f"# shut the fuck up, you chink. go back to washing dishes"
+            )
 
     if message.attachments:
         client.last_files = [await i.to_file() for i in message.attachments]
