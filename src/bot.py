@@ -17,6 +17,13 @@ with open("wordlist.txt", "r") as f:
 with open("/data/userinfo.json", "r") as f:
     userinfo: dict[int, UserInfo] = json.load(f)
 
+with open("/data/roles.json", "r") as f:
+    roles: ReactionRoles = json.load(f)
+
+
+def get_digits(text: str) -> int:
+    return int("".join(filter(str.isdigit, text)))
+
 
 class Client(discord.Client):
 
@@ -44,8 +51,8 @@ class Client(discord.Client):
 
     async def on_ready(self):
         print(f"Logged in as {self.user}")
-        st = dt()
         print("--------------------")
+        st = dt()
 
         self.GUILD = client.get_guild(1137187794398224394)
         self.channels.solitary = discord.utils.get(
@@ -68,6 +75,10 @@ class Client(discord.Client):
         while True:
             with open("/data/userinfo.json", "w") as f:
                 json.dump(userinfo, f, default=lambda x: x.__dict__, indent=4)
+
+            with open("/data/roles.json", "w") as f:
+                json.dump(roles, f, default=lambda x: x.__dict__, indent=4)
+
             await asyncio.sleep(1)
 
     def run(self):
@@ -111,14 +122,83 @@ async def detect_words(message: discord.Message):
     return False
 
 
+@client.tree.command(name="test", description="test")
+async def test(ctx: discord.Interaction, target: discord.User):
+    class View(discord.ui.View):
+        @discord.ui.button(label="test1", style=discord.ButtonStyle.primary, emoji="👍")
+        async def test1(
+            self, interaction: discord.Interaction, button: discord.ui.Button
+        ):
+            await interaction.response.send_message(
+                "You pressed button 1!", ephemeral=True
+            )
+
+        @discord.ui.button(label="test2", style=discord.ButtonStyle.primary, emoji="👎")
+        async def test2(
+            self, interaction: discord.Interaction, button: discord.ui.Button
+        ):
+            await interaction.response.send_message(
+                "You pressed button 2!", ephemeral=True
+            )
+
+    await ctx.response.send_message(
+        embed=discord.Embed(
+            title="Test",
+            description=f"Test command for {target.mention}",
+            color=discord.Color.gold(),
+        ),
+        view=View(),
+    )
+
+
 @client.tree.command(
     name="snipe", description="reveal the last message in chat that was deleted"
 )
-async def snipe(interaction: discord.Interaction):
+async def snipe(ctx: discord.Interaction):
     contents = client.last_message_content
-    await interaction.response.send_message(
+    await ctx.response.send_message(
         content=f"```SENT: {client.last_message.created_at.astimezone().strftime('%Y-%m-%d %H:%M:%S')}\nBY: {client.last_message.author}\nCONTENTS:\n{contents}```",
         files=client.last_files,
+    )
+
+
+@client.tree.command(
+    name="role_selector",
+    description="Sends a message in current channel with a role selector menu",
+)
+async def role_selector(ctx: discord.Interaction, roles: str):
+
+    print(roles)
+    roleObjs = [
+        discord.utils.get(client.GUILD.roles, id=get_digits(role.strip()))
+        for role in roles.split(",")
+    ]
+    print(roleObjs)
+
+    embed = discord.Embed(
+        title="Role Selector",
+        description="React to this message to get the roles you want",
+        color=discord.Color.blurple(),
+    )
+
+    # add a button for each role
+    for role in roleObjs:
+        embed.add_field(
+            name=role.name,
+            value=f"React with {role.mention} to get the {role.name} role",
+            inline=False,
+        )
+
+    await ctx.response.send_message(embed=embed)
+
+
+@client.tree.command(
+    name="set_role_emoji", description="Set the emoji for a role in the role selector"
+)
+async def set_role_emoji(ctx: discord.Interaction, role: str, emoji: str):
+    roleObj = discord.utils.get(client.GUILD.roles, id=get_digits(role))
+    await ctx.response.send_message(
+        content=f"Set the emoji for the role {roleObj.name} to {emoji}"
     )
 
 
@@ -147,7 +227,12 @@ async def on_message(message: discord.Message):
 
     # Detect words
     if not await detect_words(message):
-        userinfo[message.author.id]["messageCount"] += 1
+        if message.author.id not in userinfo:
+            userinfo[message.author.id] = {}
+        try:
+            userinfo[message.author.id]["messageCount"] += 1
+        except KeyError:
+            userinfo[message.author.id]["messageCount"] = 1
 
 
 @client.event
