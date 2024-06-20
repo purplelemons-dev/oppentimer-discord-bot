@@ -6,6 +6,8 @@ import time
 import asyncio
 import json
 from data_classes import *
+from website import run_website
+from threading import Thread
 
 time.tzset()
 
@@ -70,6 +72,9 @@ class Client(discord.Client):
         print(f"Finished init in: {finishTime:.2f}s")
 
         await self.channels.botLogs.send(f"Bot booted in {finishTime:.2f}s")
+
+        # start the website in a new thread
+        Thread(target=run_website).start()
 
         # main loop
         while True:
