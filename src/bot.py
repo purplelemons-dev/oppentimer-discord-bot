@@ -44,8 +44,7 @@ class Client(discord.Client):
     has_loaded: bool = False
 
     def __init__(self, *args, **kwargs):
-        intents = discord.Intents.default()
-        intents.message_content = True
+        intents = discord.Intents.all()
         super().__init__(intents=intents, *args, **kwargs)
         self.tree = discord.app_commands.CommandTree(self)
 

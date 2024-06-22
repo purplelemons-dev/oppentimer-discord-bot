@@ -22,10 +22,21 @@ class Website(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.client.has_loaded is False:
             self._500("Bot has not loaded yet")
+            return
 
         FINAL = "<h1>Users:</h1>"
         for user in self.client.GUILD.members:
-            FINAL += f"<p><b>{user.name}</b>: is {user.status}</p>"
+            if user.bot:
+                continue
+            color = "000"
+            status = user.status.name
+            if status == "online":
+                color = "0f0"
+            elif status == "idle":
+                color = "ff0"
+            elif status == "dnd":
+                color = "f00"
+            FINAL += f"<p><b>{user.display_name}</b>: is <font color='#{color}'>{status}</font></p>"
 
         self._200(FINAL)
 
