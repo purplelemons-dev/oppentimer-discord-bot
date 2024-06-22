@@ -6,8 +6,6 @@ import time
 import asyncio
 import json
 from data_classes import *
-from website import run_website
-from threading import Thread
 
 time.tzset()
 
@@ -43,6 +41,8 @@ class Client(discord.Client):
     last_files: list[discord.File] = []
     last_files_deleted: bool = False
 
+    has_loaded: bool = False
+
     def __init__(self, *args, **kwargs):
         intents = discord.Intents.default()
         intents.message_content = True
@@ -73,12 +73,10 @@ class Client(discord.Client):
                 userinfo[user.id] = {"messageCount": 0}
 
         finishTime = dt() - st
+        self.has_loaded = True
         print(f"Finished init in: {finishTime:.2f}s")
 
         await self.channels.botLogs.send(f"Bot booted in {finishTime:.2f}s")
-
-        # start the website in a new thread
-        Thread(target=run_website).start()
 
         # main loop
         while True:
@@ -273,6 +271,3 @@ async def on_message_delete(message: discord.Message):
 
     client.last_message_content = client.last_message.clean_content
     client.last_files_deleted = True
-
-
-client.run()
