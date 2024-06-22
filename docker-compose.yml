@@ -9,3 +9,5 @@ services:
       - ./data:/data
     tty: true
     restart: unless-stopped
+    ports:
+      - "10023:10023"

@@ -30,6 +30,8 @@ class Client(discord.Client):
     class channels:
         solitary: discord.CategoryChannel = None
         botLogs: discord.TextChannel = None
+        hangouts: discord.TextChannel = None
+        oppentimer_channel: discord.TextChannel = None
 
     class roles:
         jail: discord.Role = None
@@ -39,9 +41,10 @@ class Client(discord.Client):
     last_files: list[discord.File] = []
     last_files_deleted: bool = False
 
+    has_loaded: bool = False
+
     def __init__(self, *args, **kwargs):
-        intents = discord.Intents.default()
-        intents.message_content = True
+        intents = discord.Intents.all()
         super().__init__(intents=intents, *args, **kwargs)
         self.tree = discord.app_commands.CommandTree(self)
 
@@ -59,6 +62,8 @@ class Client(discord.Client):
             self.GUILD.categories, name="solitary confinement"
         )
         self.channels.botLogs = self.get_channel(1251302290875220038)
+        self.channels.hangouts = self.get_channel(1137187795736211549)
+        self.channels.oppentimer_channel = self.get_channel(1137187795736211549)
 
         self.roles.jail = self.GUILD.get_role(1251026269835886613)
 
@@ -67,6 +72,7 @@ class Client(discord.Client):
                 userinfo[user.id] = {"messageCount": 0}
 
         finishTime = dt() - st
+        self.has_loaded = True
         print(f"Finished init in: {finishTime:.2f}s")
 
         await self.channels.botLogs.send(f"Bot booted in {finishTime:.2f}s")
@@ -211,7 +217,12 @@ async def on_message(message: discord.Message):
     ):
         return
 
-    elif message.author.id == 756578226494767284:  # nate
+    elif (message.author.id == 756578226494767284) and (
+        message.channel.id
+        in {
+            i.id for i in {client.channels.hangouts, client.channels.oppentimer_channel}
+        }
+    ):  # nate
         await message.reply("fuck you")
 
     elif message.author.id == 529505244615278605:  # abbie
@@ -259,6 +270,3 @@ async def on_message_delete(message: discord.Message):
 
     client.last_message_content = client.last_message.clean_content
     client.last_files_deleted = True
-
-
-client.run()
