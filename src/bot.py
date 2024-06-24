@@ -95,6 +95,10 @@ client = Client(max_messages=10000)
 
 
 async def detect_words(message: discord.Message):
+    if client.roles.jail in message.author.roles:
+        print(f"{message.author.display_name} is in jail, not checking for words")
+        return False
+
     for naughtyWord in wordlist:
         if naughtyWord in message.clean_content.lower():
             # solitary confinement logic here
