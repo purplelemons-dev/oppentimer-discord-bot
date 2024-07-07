@@ -40,6 +40,7 @@ class Client(discord.Client):
     last_message_content: str = ""
     last_files: list[discord.File] = []
     last_files_deleted: bool = False
+    voice_client: discord.VoiceClient = None
 
     has_loaded: bool = False
 
@@ -210,6 +211,21 @@ async def set_role_emoji(ctx: discord.Interaction, role: str, emoji: str):
     await ctx.response.send_message(
         content=f"Set the emoji for the role {roleObj.name} to {emoji}"
     )
+
+
+@client.tree.command(name="join", description="Join the voice channel you are in")
+async def join(ctx: discord.Interaction):
+    channel: discord.VoiceChannel = ctx.user.voice.channel
+    print(f"User {ctx.user} joined #{channel.name}")
+
+    client.voice_client = await channel.connect()
+    await ctx.response.send_message("Joined")
+
+
+@client.tree.command(name="leave", description="Leave the voice channel")
+async def leave(ctx: discord.Interaction):
+    await client.voice_client.disconnect()
+    await ctx.response.send_message("Left")
 
 
 @client.event
