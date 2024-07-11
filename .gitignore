@@ -2,3 +2,5 @@
 .env
 /activate
 /data
+/src/data
+*__pycache__*
