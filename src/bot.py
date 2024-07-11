@@ -6,6 +6,7 @@ import time
 import asyncio
 import json
 from data_classes import *
+from requests import get as req_get
 
 time.tzset()
 
@@ -226,6 +227,21 @@ async def join(ctx: discord.Interaction):
 async def leave(ctx: discord.Interaction):
     await client.voice_client.disconnect()
     await ctx.response.send_message("Left")
+
+
+@client.tree.command(
+    name="minecraft", description="See how many people are on the minecraft server"
+)
+async def minecraft(ctx: discord.Interaction):
+    MC_IP = getenv("MCSERVER")
+    players = req_get(f"https://api.mcsrvstat.us/3/{MC_IP}").json()["players"]
+    try:
+        playerList = ":\n" ", ".join(i["name"] for i in players["list"])
+    except KeyError:
+        playerList = "."
+    await ctx.response.send_message(
+        f"There are {players['online']}/{players['max']} players on the server{playerList}"
+    )
 
 
 @client.event
