@@ -236,7 +236,7 @@ async def minecraft(ctx: discord.Interaction):
     MC_IP = getenv("MCSERVER")
     players = req_get(f"https://api.mcsrvstat.us/3/{MC_IP}").json()["players"]
     try:
-        playerList = ":\n" ", ".join(i["name"] for i in players["list"])
+        playerList = ":\n- " + "\n- ".join(i["name"] for i in players["list"])
     except KeyError:
         playerList = "."
     await ctx.response.send_message(
