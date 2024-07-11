@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from bot import Client
 from http.cookies import SimpleCookie
+import time
 
 PORT = 10023
 
@@ -53,4 +54,9 @@ def run_website(client: Client):
     server_address = ("0.0.0.0", PORT)
     Website.client = client
     httpd = HTTPServer(server_address, Website)
-    httpd.serve_forever()
+    while True:
+        try:
+            print("WEB | try 1...")
+            httpd.serve_forever()
+        except:
+            time.sleep(0.5)

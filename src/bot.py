@@ -14,10 +14,10 @@ with open("wordlist.txt", "r") as f:
     wordlist = f.read().splitlines()
 
 
-with open("/data/userinfo.json", "r") as f:
+with open("data/userinfo.json", "r") as f:
     userinfo: dict[int, UserInfo] = json.load(f)
 
-with open("/data/roles.json", "r") as f:
+with open("data/roles.json", "r") as f:
     roles: ReactionRoles = json.load(f)
 
 
@@ -80,10 +80,10 @@ class Client(discord.Client):
 
         # main loop
         while True:
-            with open("/data/userinfo.json", "w") as f:
+            with open("data/userinfo.json", "w") as f:
                 json.dump(userinfo, f, default=lambda x: x.__dict__, indent=4)
 
-            with open("/data/roles.json", "w") as f:
+            with open("data/roles.json", "w") as f:
                 json.dump(roles, f, default=lambda x: x.__dict__, indent=4)
 
             await asyncio.sleep(1)
